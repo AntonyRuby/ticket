@@ -11,7 +11,7 @@ abstract class TicketEvent extends Equatable {
 class CreateTicketEvent extends TicketEvent {
   final Ticket ticket; // Accepts a Ticket object as a parameter
 
-  CreateTicketEvent(this.ticket); // Constructor with the Ticket parameter
+  const CreateTicketEvent(this.ticket); // Constructor with the Ticket parameter
 
   @override
   List<Object?> get props =>

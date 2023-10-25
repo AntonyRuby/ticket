@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "218424477131",
+    "project_id": "errorecordsgiticket",
+    "storage_bucket": "errorecordsgiticket.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218424477131:android:caf0719196e683416e624e",
+        "android_client_info": {
+          "package_name": "com.example.error_records_git_ticket"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCi-o2Np_cpNGUUbFtxB9Ip-za0-hsbYcc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

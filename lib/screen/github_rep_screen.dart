@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// GitHub Repositories List (Use Case 2) - GitHub API Implementation
-
 class GithubRepository {
   final String name;
   final String description;
@@ -55,34 +53,59 @@ class GithubRepositoriesScreen extends StatelessWidget {
       body: FutureBuilder<List<GithubRepository>>(
         future: fetchGitHubRepositories(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(snapshot.data![index].name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Description: ${snapshot.data![index].description}'),
-                      Text('Stars: ${snapshot.data![index].stars}'),
-                      Text('Owner: ${snapshot.data![index].ownerName}'),
-                    ],
-                  ),
-                  leading: CircleAvatar(
-                    backgroundImage:
-                        NetworkImage(snapshot.data![index].ownerAvatarUrl),
-                  ),
-                );
-              },
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(Colors.blue), // Custom color
+              ),
             );
           } else if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
             );
+          } else if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text(
+                      snapshot.data![index].name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(
+                                'Description: ${snapshot.data![index].description}'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child:
+                                Text('Stars: ${snapshot.data![index].stars}'),
+                          ),
+                          Text('Owner: ${snapshot.data![index].ownerName}'),
+                        ],
+                      ),
+                    ),
+                    leading: CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(snapshot.data![index].ownerAvatarUrl),
+                    ),
+                  ),
+                );
+              },
+            );
           }
           return const Center(
-            child: CircularProgressIndicator(),
+            child: Text('No data found'),
           );
         },
       ),

@@ -96,60 +96,64 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       NotificationResponse? notification) async {
     // Handle received local notification when the app is in the background
     if (notification != null) {
-      // Do something with the background notification data, e.g., navigate to a specific screen
-      // You can use the information from the notification (notification.title, notification.body) to determine the appropriate action.
-      // For example, you can use named routes to navigate to a specific screen:
+      String title = notification.title ?? 'Default Title';
+      String body = notification.body ?? 'Default Body';
+
+      // Use the information from the notification to determine the appropriate action
+      // For example, you can navigate to a specific screen with the provided arguments
       // Navigator.pushNamed(context, '/details', arguments: notification);
 
-      // Or you can handle the notification in any way that suits your app's logic.
+      // Or handle the notification in any way that suits your app's logic.
+      // For example, show a dialog, update app state, etc.
+      print('Received background notification - Title: $title, Body: $body');
     }
   }
-}
 
-Future<void> _scheduleNotification(String problemTitle,
-    FlutterLocalNotificationsPlugin localNotificationsPlugin) async {
-  AndroidNotificationDetails androidPlatformChannelSpecifics =
-      const AndroidNotificationDetails(
-    'your channel id',
-    'your channel name',
-    // 'your channel description',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
-  NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+  Future<void> _scheduleNotification(String problemTitle,
+      FlutterLocalNotificationsPlugin localNotificationsPlugin) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        const AndroidNotificationDetails(
+      'your channel id',
+      'your channel name',
+      // 'your channel description',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
 
-  await localNotificationsPlugin.zonedSchedule(
-    0,
-    'Ticket Created',
-    'Ticket: $problemTitle has been created successfully!',
-    tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1)),
-    platformChannelSpecifics,
-    androidAllowWhileIdle: true,
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-    payload: 'item x',
-  );
-}
+    await localNotificationsPlugin.zonedSchedule(
+      0,
+      'Ticket Created',
+      'Ticket: $problemTitle has been created successfully!',
+      tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1)),
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      payload: 'item x',
+    );
+  }
 
-@override
-Stream<TicketState> mapEventToState(TicketEvent event) async* {
-  if (event is CreateTicketEvent) {
-    try {
-      final FirebaseFirestore firestore = FirebaseFirestore.instance;
-      final FirebaseAuth auth = FirebaseAuth.instance;
-      User? user = auth.currentUser;
-      // ignore: unnecessary_null_comparison
-      if (user != null) {
-        await firestore.collection('tickets').add(event.ticket.toMap());
-        // await _scheduleNotification(
-        //     event.ticket.problemTitle, localNotificationsPlugin);
-        yield TicketCreatedState();
-      } else {
-        yield TicketErrorState('User not authenticated');
+  @override
+  Stream<TicketState> mapEventToState(TicketEvent event) async* {
+    if (event is CreateTicketEvent) {
+      try {
+        final FirebaseFirestore firestore = FirebaseFirestore.instance;
+        final FirebaseAuth auth = FirebaseAuth.instance;
+        User? user = auth.currentUser;
+        // ignore: unnecessary_null_comparison
+        if (user != null) {
+          await firestore.collection('tickets').add(event.ticket.toMap());
+          // await _scheduleNotification(
+          //     event.ticket.problemTitle, localNotificationsPlugin);
+          yield TicketCreatedState();
+        } else {
+          yield TicketErrorState('User not authenticated');
+        }
+      } catch (e) {
+        yield TicketErrorState('Failed to create ticket');
       }
-    } catch (e) {
-      yield TicketErrorState('Failed to create ticket');
     }
   }
 }
