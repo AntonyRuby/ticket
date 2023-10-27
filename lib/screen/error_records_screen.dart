@@ -12,14 +12,13 @@ class EmailService {
       List<ErrorRecord> errorRecords) async {
     final Email email = Email(
       subject: 'Error Records Report', // Email subject
-      // recipients: ['admin@example.com'], // Administrator's email address
-      recipients: ['alexiadeveloper91@gmail.com'],
+      recipients: ['admin@example.com'], // Administrator's email address
       body: _composeEmailBody(errorRecords),
     );
 
     try {
       await FlutterEmailSender.send(email);
-      print('Email sent successfully.'); // Add this line for debugging
+      print('Email sent successfully.'); // Added this line for debugging
     } catch (error) {
       print('Error sending email: $error');
     }
@@ -43,10 +42,12 @@ Future<void> scheduleDailyNotification() async {
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  var initializationSettingsAndroid = const AndroidInitializationSettings(
-      'app_icon'); // Replace 'app_icon' with your own icon name
+  var initializationSettingsAndroid =
+      const AndroidInitializationSettings('ic_launcher');
+  // var initializationSettingsIOS = IOSInitializationSettings();
   var initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
+    // iOS: initializationSettingsIOS,
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
@@ -58,68 +59,33 @@ Future<void> scheduleDailyNotification() async {
     priority: Priority.high,
   );
 
+  // var iOSPlatformChannelSpecifics = IOSNotificationDetails();
   var platformChannelSpecifics = NotificationDetails(
     android: androidPlatformChannelSpecifics,
+    // iOS: iOSPlatformChannelSpecifics,
   );
 
-  // Schedule the notification at 9 PM IST
-  var scheduledTime = tz.TZDateTime.now(tz.local)
-      .add(const Duration(hours: 21)); // 21 corresponds to 9 PM
+  var scheduledTime = tz.TZDateTime.now(tz.local).add(const Duration(days: 1));
 
-  await flutterLocalNotificationsPlugin.zonedSchedule(
-    0,
+  await flutterLocalNotificationsPlugin.show(
+    0, // Notification ID (use a different ID for each notification if needed)
     'Daily Error Records',
     'Check if there are any error records to send.',
-    scheduledTime,
     platformChannelSpecifics,
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-    androidAllowWhileIdle: true,
+    payload: 'item x',
   );
+
+  // await flutterLocalNotificationsPlugin.zonedSchedule(
+  //   0,
+  //   'Daily Error Records',
+  //   'Check if there are any error records to send.',
+  //   scheduledTime,
+  //   platformChannelSpecifics,
+  //   uiLocalNotificationDateInterpretation:
+  //       UILocalNotificationDateInterpretation.absoluteTime,
+  //   androidAllowWhileIdle: true,
+  // );
 }
-
-// Future<void> scheduleDailyNotification() async {
-//   tz.initializeTimeZones(); // Initialize time zones
-//   tz.setLocalLocation(tz.getLocation('Asia/Kolkata')); // Set local time zone
-
-//   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//       FlutterLocalNotificationsPlugin();
-//   var initializationSettingsAndroid = const AndroidInitializationSettings(
-//       'app_icon'); // Replace 'app_icon' with your own icon name
-//   // var initializationSettingsIOS = IOSInitializationSettings();
-//   var initializationSettings = InitializationSettings(
-//     android: initializationSettingsAndroid,
-//     // iOS: initializationSettingsIOS,
-//   );
-//   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-//   var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-//     'your_channel_id',
-//     'your_channel_name',
-//     channelDescription: 'your_channel_description',
-//     importance: Importance.max,
-//     priority: Priority.high,
-//   );
-
-//   // var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-//   var platformChannelSpecifics = NotificationDetails(
-//     android: androidPlatformChannelSpecifics,
-//     // iOS: iOSPlatformChannelSpecifics,
-//   );
-
-//   var scheduledTime = tz.TZDateTime.now(tz.local).add(const Duration(days: 1));
-
-//   await flutterLocalNotificationsPlugin.zonedSchedule(
-//     0,
-//     'Daily Error Records',
-//     'Check if there are any error records to send.',
-//     scheduledTime,
-//     platformChannelSpecifics,
-//     uiLocalNotificationDateInterpretation:
-//         UILocalNotificationDateInterpretation.absoluteTime,
-//     androidAllowWhileIdle: true,
-//   );
-// }
 
 class ErrorRecord {
   final int transId;
@@ -167,9 +133,27 @@ class ErrorRecordDatabase {
         errorRecord.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
+      print('Record inserted successfully');
     } catch (e) {
       print('Error inserting record: $e');
-      // Handle the error as needed (e.g., show an error message to the user).
+      // Handle the error based on the specific exception type or error message.
+      if (e is DatabaseException) {
+        // Handle database-related errors (e.g., constraint violations).
+        if (e.isUniqueConstraintError()) {
+          // Handle unique constraint violation error.
+          // Show a user-friendly error message.
+          print('Duplicate record: The record already exists in the database.');
+        } else {
+          // Handle other database errors.
+          print('Database error: $e');
+        }
+      } else {
+        // Handle other types of errors.
+        // Show a generic error message or log the error for debugging.
+        print('Unexpected error occurred: $e');
+      }
+      // Optionally, re-throw the exception to propagate it to the calling code.
+      // rethrow;
     }
   }
 

@@ -9,32 +9,6 @@ import 'ticket_event.dart';
 import 'ticket_state.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-class Ticket {
-  final String problemTitle;
-  final String problemDescription;
-  final String location;
-  final DateTime date;
-  final String attachmentUrl;
-
-  Ticket({
-    required this.problemTitle,
-    required this.problemDescription,
-    required this.location,
-    required this.date,
-    required this.attachmentUrl,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'problemTitle': problemTitle,
-      'problemDescription': problemDescription,
-      'location': location,
-      'date': date.toIso8601String(),
-      'attachmentUrl': attachmentUrl,
-    };
-  }
-}
-
 class NotificationResponse {
   final String? title;
   final String? body;
@@ -49,26 +23,28 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
 
   TicketBloc(this.flutterLocalNotificationsPlugin, this.context)
       : super(TicketInitialState()) {
-    _initializeLocalNotifications();
+    // _initializeLocalNotifications(flutterLocalNotificationsPlugin, context);
   }
 
-  void _initializeLocalNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    InitializationSettings initializationSettings =
-        const InitializationSettings(android: initializationSettingsAndroid);
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (notification) =>
-          _onDidReceiveLocalNotification(
-              notification as NotificationResponse?, context),
-      onDidReceiveBackgroundNotificationResponse: (notification) =>
-          _onDidReceiveBackgroundLocalNotification(
-              notification as NotificationResponse?),
-    );
-  }
+  // static void _initializeLocalNotifications(
+  //     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+  //     BuildContext context) async {
+  //   const AndroidInitializationSettings initializationSettingsAndroid =
+  //       AndroidInitializationSettings('@mipmap/ic_launcher');
+  //   InitializationSettings initializationSettings =
+  //       const InitializationSettings(android: initializationSettingsAndroid);
+  //   await flutterLocalNotificationsPlugin.initialize(
+  //     initializationSettings,
+  //     onDidReceiveNotificationResponse: (notification) =>
+  //         _onDidReceiveLocalNotification(
+  //             notification as NotificationResponse?, context),
+  //     onDidReceiveBackgroundNotificationResponse: (notification) =>
+  //         _onDidReceiveBackgroundLocalNotification(
+  //             notification as NotificationResponse?),
+  //   );
+  // }
 
-  void _onDidReceiveLocalNotification(
+  static void _onDidReceiveLocalNotification(
     NotificationResponse? notification,
     BuildContext context,
   ) {
@@ -92,37 +68,33 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     );
   }
 
-  void _onDidReceiveBackgroundLocalNotification(
+  static void _onDidReceiveBackgroundLocalNotification(
       NotificationResponse? notification) async {
-    // Handle received local notification when the app is in the background
     if (notification != null) {
       String title = notification.title ?? 'Default Title';
       String body = notification.body ?? 'Default Body';
 
-      // Use the information from the notification to determine the appropriate action
-      // For example, you can navigate to a specific screen with the provided arguments
-      // Navigator.pushNamed(context, '/details', arguments: notification);
-
-      // Or handle the notification in any way that suits your app's logic.
-      // For example, show a dialog, update app state, etc.
       print('Received background notification - Title: $title, Body: $body');
     }
   }
 
-  Future<void> _scheduleNotification(String problemTitle,
-      FlutterLocalNotificationsPlugin localNotificationsPlugin) async {
+  Future<void> _scheduleNotification(
+      String problemTitle, FlutterLocalNotificationsPlugin plugin) async {
+    // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         const AndroidNotificationDetails(
       'your channel id',
       'your channel name',
-      // 'your channel description',
+      channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
     );
     NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    await localNotificationsPlugin.zonedSchedule(
+    await flutterLocalNotificationsPlugin.zonedSchedule(
       0,
       'Ticket Created',
       'Ticket: $problemTitle has been created successfully!',
@@ -145,8 +117,8 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         // ignore: unnecessary_null_comparison
         if (user != null) {
           await firestore.collection('tickets').add(event.ticket.toMap());
-          // await _scheduleNotification(
-          //     event.ticket.problemTitle, localNotificationsPlugin);
+          await _scheduleNotification(
+              event.ticket.problemTitle, flutterLocalNotificationsPlugin);
           yield TicketCreatedState();
         } else {
           yield TicketErrorState('User not authenticated');

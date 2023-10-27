@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle notification when the app is in the background.
@@ -15,10 +16,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings(
-          'app_icon'); // Replace 'app_icon' with your app's icon name
+      AndroidInitializationSettings('@mipmap/ic_launcher');
   InitializationSettings initializationSettings =
-      const InitializationSettings(android: initializationSettingsAndroid);
+      InitializationSettings(android: initializationSettingsAndroid);
 
   flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
@@ -50,8 +50,23 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Initialize FCM with the top-level function as the background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Initialize local notifications
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  var initializationSettingsAndroid =
+      const AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  await initializeDateFormatting();
 
   runApp(const MyApp());
 }

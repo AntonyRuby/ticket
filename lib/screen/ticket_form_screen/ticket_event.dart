@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:error_records_git_ticket/screen/ticket_form_screen/ticket_bloc.dart';
+import 'package:error_records_git_ticket/models/ticket_model.dart';
 
 abstract class TicketEvent extends Equatable {
   const TicketEvent();
