@@ -6,7 +6,6 @@ import 'package:error_records_git_ticket/screen/ticket_form_screen/ticket_bloc.d
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 CollectionReference ticketsCollection =
     FirebaseFirestore.instance.collection('tickets');

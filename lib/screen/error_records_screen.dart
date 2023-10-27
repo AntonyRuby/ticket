@@ -1,3 +1,4 @@
+import 'package:error_records_git_ticket/models/error_record_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
@@ -65,7 +66,7 @@ Future<void> scheduleDailyNotification() async {
     // iOS: iOSPlatformChannelSpecifics,
   );
 
-  var scheduledTime = tz.TZDateTime.now(tz.local).add(const Duration(days: 1));
+  // var scheduledTime = tz.TZDateTime.now(tz.local).add(const Duration(days: 1));
 
   await flutterLocalNotificationsPlugin.show(
     0, // Notification ID (use a different ID for each notification if needed)
@@ -85,30 +86,6 @@ Future<void> scheduleDailyNotification() async {
   //       UILocalNotificationDateInterpretation.absoluteTime,
   //   androidAllowWhileIdle: true,
   // );
-}
-
-class ErrorRecord {
-  final int transId;
-  final String transDesc;
-  final String transStatus;
-  final String transDateTime;
-
-  ErrorRecord({
-    required this.transId,
-    required this.transDesc,
-    required this.transStatus,
-    required this.transDateTime,
-  });
-
-  // Convert ErrorRecord object to a Map
-  Map<String, dynamic> toMap() {
-    return {
-      'transId': transId,
-      'transDesc': transDesc,
-      'transStatus': transStatus,
-      'transDateTime': transDateTime,
-    };
-  }
 }
 
 class ErrorRecordDatabase {

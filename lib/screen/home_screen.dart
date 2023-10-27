@@ -2,7 +2,6 @@ import 'package:error_records_git_ticket/screen/create_screen.dart';
 import 'package:error_records_git_ticket/screen/error_records_screen.dart';
 import 'package:error_records_git_ticket/screen/github_rep_screen.dart';
 import 'package:error_records_git_ticket/screen/ticket_form_screen/ticket_bloc.dart';
-import 'package:error_records_git_ticket/screen/ticket_form_screen/ticket_form_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {

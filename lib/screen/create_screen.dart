@@ -46,8 +46,6 @@ class TicketScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseService firebaseService = FirebaseService();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ticket Screen'),
@@ -77,6 +75,8 @@ class TicketScreen extends StatelessWidget {
 
 class FirebaseListView extends StatelessWidget {
   final FirebaseService firebaseService = FirebaseService();
+
+  FirebaseListView({super.key});
 
   @override
   Widget build(BuildContext context) {
