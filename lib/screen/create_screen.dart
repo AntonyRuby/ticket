@@ -22,14 +22,6 @@ Future<void> addTicket(String problemTitle, String problemDescription,
   DateTime now = DateTime.now();
   Timestamp timestamp = Timestamp.fromDate(now);
 
-  // return ticketsCollection.add({
-  //   'Problem Title': problemTitle,
-  //   'Problem Description': problemDescription,
-  //   'Location': location,
-  //   'Date': timestamp,
-  //   'Attachment URL': attachmentUrl,
-  // });
-  // ignore: dead_code
   FirebaseFirestore.instance.collection('tickets').add({
     'Problem Title': problemTitle,
     'Problem Description': problemDescription,
